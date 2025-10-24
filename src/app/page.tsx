@@ -5,7 +5,8 @@ import { Button } from "@crayonai/react-ui";
 import { ThemeProvider, C1Component } from "@thesysai/genui-sdk";
 import { useUIState } from "./hooks/useUIState";
 import { Loader } from "./components/Loader";
-import { CrayonChat, type ResponseTemplate } from "@crayonai/react-core";
+import { type ResponseTemplate } from "@crayonai/react-core";
+import { CrayonChat } from "@crayonai/react-ui";
 import BreakdownExpenses from "./components/BreakdownExpenses";
 
 const templates: ResponseTemplate[] = [
