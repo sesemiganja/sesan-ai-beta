@@ -1,0 +1,10 @@
+{
+  "buildCommand": "next build",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "functions": {
+    "api/ask": {
+      "runtime": "nodejs20.x"
+    }
+  }
+}
