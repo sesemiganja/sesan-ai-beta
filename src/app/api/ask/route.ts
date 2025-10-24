@@ -30,8 +30,12 @@ export async function POST(req: NextRequest) {
     content: prompt,
   });
 
+  // Allow overriding the model via env; default to Vision release v-20250815
+  const model =
+    process.env.THESYS_MODEL || "c1/openai/gpt-5/v-20250815";
+
   const llmStream = await client.chat.completions.create({
-    model: "c1/openai/gpt-5/v-20250915",
+    model,
     messages: [...messages],
     stream: true,
   });
