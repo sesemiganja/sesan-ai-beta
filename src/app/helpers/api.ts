@@ -55,31 +55,52 @@ export const makeApiCall = async ({
       signal: newAbortController.signal,
     });
 
+    // Handle non-OK responses before streaming
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "");
+      throw new Error(`Request failed with ${response.status}: ${errorText}`);
+    }
+
     // Set up stream reading utilities
     const decoder = new TextDecoder();
-    const stream = response.body?.getReader();
+    const reader = response.body?.getReader();
 
-    if (!stream) {
+    if (!reader) {
       throw new Error("response.body not found");
     }
 
-    // Initialize accumulator for streamed response
-    let streamResponse = "";
+    // Accumulate and throttle UI updates to reduce re-renders
+    let accumulated = "";
+    let buffer = "";
+    const THROTTLE_MS = 100;
+    let lastEmit = 0;
 
     // Read the stream chunk by chunk
     while (true) {
-      const { done, value } = await stream.read();
+      const { done, value } = await reader.read();
       // Decode the chunk, considering if it's the final chunk
       const chunk = decoder.decode(value, { stream: !done });
 
-      // Accumulate response and update state
-      streamResponse += chunk;
-      setC1Response(streamResponse);
+      // Accumulate into buffer; flush on throttle interval
+      buffer += chunk;
+      const now = Date.now();
+      if (now - lastEmit >= THROTTLE_MS) {
+        accumulated += buffer;
+        buffer = "";
+        setC1Response(accumulated);
+        lastEmit = now;
+      }
 
       // Break the loop when stream is complete
       if (done) {
         break;
       }
+    }
+
+    // Final flush to ensure remaining buffer reaches UI
+    if (buffer.length) {
+      accumulated += buffer;
+      setC1Response(accumulated);
     }
   } catch (error) {
     console.error("Error in makeApiCall:", error);

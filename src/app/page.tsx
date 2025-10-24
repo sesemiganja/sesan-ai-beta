@@ -29,6 +29,7 @@ const Page = () => {
               placeholder-gray-500"
             value={state.query}
             placeholder="Enter a prompt"
+            aria-label="Prompt input"
             onChange={({ target: { value } }) => actions.setQuery(value)}
             onKeyDown={(e) => {
               // make api call only when response loading is not in progress
